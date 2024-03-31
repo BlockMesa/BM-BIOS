@@ -19,7 +19,6 @@ local bootMessage = ""
 local whiteColor = 0x00FF00
 local blackColor = 0x000000
 local function setColors()
-	term.redirect(term.native())
 	for i=1,15 do
 		local color = i^2
 		term.setPaletteColor(color,term.nativePaletteColor(color))
@@ -59,12 +58,15 @@ local function resolvePath(path)
     return final
 end
 local function setupTerm()
+	term.redirect(term.native())
 	setColors()
 	term.setCursorBlink(false)
 	term.clear()
 	term.setCursorPos(1,1)
 	print("BLOCK MESA BIOS v"..version)
 	term.blit("Now in color!","e140db0e14dbe","fffffffffffff")
+	term.setTextColor(colors.white)
+	term.setCursorPos(1,4)
 end
 setupTerm()
 local function enterSetup()
@@ -213,7 +215,7 @@ local function overides()
 	oldIo.open = io.open
 	function fakeIo.open(oldPath,a)
 		local path = resolvePath(oldPath)
-		if notAllowed[string.lower(path)] then
+		if notAllowed[string.lower(path)] and (a == "w" or a == "wb" or a == "w+" or a == "wb+" or a == "w+b" or a == "rb+" or a == "r+" or a == "r+b") then
 			return nil
 		end	
 		return oldIo.open(path,a)
@@ -258,7 +260,7 @@ local function overides()
 	oldFs.open = fs.open
 	function fakeFs.open(oldPath,a)
 		local path = resolvePath(oldPath)
-		if notAllowed[string.lower(path)] then
+		if notAllowed[string.lower(path)] and (a == "w" or a == "wb" or a == "w+" or a == "wb+" or a == "w+b" or a == "rb+" or a == "r+" or a == "r+b") then
 			return nil
 		end	
 		return oldFs.open(path,a)
@@ -310,9 +312,7 @@ local function overides()
 	oldFs.exists = fs.exists
 	function fakeFs.exists(oldPath)
 		local path = resolvePath(oldPath)
-		if notAllowed[string.lower(path)] then
-			return false
-		end	
+		
 		return oldFs.exists(path)
 	end
 	_G.fs.exists = fakeFs.exists
