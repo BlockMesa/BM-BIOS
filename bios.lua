@@ -15,8 +15,7 @@ local version = "2.00"
 local isDiskBooted = false
 local baseDirectory = ""
 local directory = "/"
-local driveLetter = "C"
-
+local bootMessage = ""
 local whiteColor = 0x00FF00
 local blackColor = 0x000000
 local function setColors()
@@ -106,12 +105,6 @@ local bios = {
 		--shell.setDir(dir)
 		directory = dir
 	end,
-	getDrive = function()
-		return driveLetter
-	end,
-	setDrive = function(a)
-		driveLetter = a
-	end,
 	updateFile = function(file,url)
 		if oldSettingsGet("bm-bios.secureboot") and string.sub(url,1,44) ~= githubUrl then
 			print("Trust check failed")
@@ -138,7 +131,7 @@ local bios = {
 	settingsSet = oldSettingsSet,
 }
 local function boot(prefix)
-	print("Booting from drive "..driveLetter)
+	print(bootMessage)
 	baseDirectory = prefix
 	directory = prefix
 	local success, response = pcall(os.run,{bios=bios},prefix..".BOOT")
@@ -149,12 +142,12 @@ local function boot(prefix)
 end
 local function findBootableDevice()
 	if fs.exists("disk") and fs.exists("/disk/.BOOT") then
-		bios.setDrive("A")
+		bootMessage = "Booting from disk"
 		isDiskBooted = true
 		boot("/disk/")
 
 	elseif fs.exists("/.BOOT") then
-		bios.setDrive("C")
+		bootMessage = "Booting from hdd"
 		boot("/")
 	else
 		print("NO BOOT DEVICE FOUND!")
