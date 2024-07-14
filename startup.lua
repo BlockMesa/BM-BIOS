@@ -1,9 +1,10 @@
 --Startup file for CC:Tweaked
 local compat = {}
 compat.isCapy64 = false
-compat.title = function(...) return end
-compat.setRPC = function(...) return end
-compat.log = function(...) return end
+local function nop() end --Don't create more functions
+compat.title = nop
+compat.setRPC = nop
+compat.log = nop
 _G.compat = compat
 
 os.run({},".BIOS")
