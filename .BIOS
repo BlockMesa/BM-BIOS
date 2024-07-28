@@ -2,11 +2,15 @@
 --Used for all Block Mesa bootable computers
 --inject code stolen from https://pastebin.com/yzfDMjwf
 local oldPull = os.pullEvent
+if settngs.get("bm-bios.noTerminate", true) then
+	_G.os.pullEvent=coroutine.yield
+end
+
 local oldSettingsGet = settings.get
 local oldSettingsSet = settings.set
 local fsOpen = fs.open
 local oldDebug = _G.debug
-_G.os.pullEvent = os.pullEventRaw
+--_G.os.pullEvent = os.pullEventRaw
 _G.os.pullEventOld = oldPull
 local function hang()
 	while true do
